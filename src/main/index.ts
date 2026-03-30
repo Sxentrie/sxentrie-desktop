@@ -40,7 +40,7 @@ function createWindow(): void {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
@@ -51,8 +51,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+
 
   // Establish an asynchronous handler for database queries
   ipcMain.handle('database:connect', async (_, storageUri: string) => {
@@ -71,6 +70,11 @@ app.whenReady().then(() => {
   ipcMain.on('gemini:chat', async (event, messages: any[]) => {
     try {
       console.log(`[Main] IPC gemini:chat received ${messages.length} messages.`)
+
+      if (!Array.isArray(messages) || messages.length === 0) {
+        throw new Error('Invalid message history received.')
+      }
+
       await geminiService.generateContentStream(messages, (chunk) => {
         event.reply('gemini:chunk', chunk)
       })
@@ -81,7 +85,7 @@ app.whenReady().then(() => {
     }
   })
 
-  geminiService.initialize().catch(err => {
+  await geminiService.initialize().catch((err) => {
     console.error('Failed to initialize Gemini Service on startup:', err)
   })
 

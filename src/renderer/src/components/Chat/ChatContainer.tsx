@@ -22,15 +22,11 @@ export const ChatContainer = () => {
       setMessages((prev) => {
         const last = prev[prev.length - 1]
         if (last && last.role === 'assistant') {
-          return [
-            ...prev.slice(0, -1),
-            { ...last, content: last.content + chunk }
-          ]
+          const updated = [...prev]
+          updated[updated.length - 1] = { ...last, content: last.content + chunk }
+          return updated
         } else {
-          return [
-            ...prev,
-            { id: Date.now().toString(), role: 'assistant', content: chunk }
-          ]
+          return [...prev, { id: Date.now().toString(), role: 'assistant', content: chunk }]
         }
       })
     })
@@ -86,10 +82,7 @@ export const ChatContainer = () => {
   return (
     <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
       {/* Messages area */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth"
-      >
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4">
             <motion.div
