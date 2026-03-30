@@ -3,6 +3,7 @@ import { join } from 'path'
 import * as lancedb from '@lancedb/lancedb'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { geminiService } from './services/gemini.service'
 
 function createWindow(): void {
   // Create the browser window.
@@ -64,6 +65,24 @@ app.whenReady().then(() => {
       console.error('Vector Database Connection Failure:', error)
       return
     }
+  })
+
+  // Gemini IPC
+  ipcMain.on('gemini:chat', async (event, messages: any[]) => {
+    try {
+      console.log(`[Main] IPC gemini:chat received ${messages.length} messages.`)
+      await geminiService.generateContentStream(messages, (chunk) => {
+        event.reply('gemini:chunk', chunk)
+      })
+      event.reply('gemini:end')
+    } catch (error) {
+      console.error('[Main] CRITICAL: Gemini IPC Error:', error)
+      event.reply('gemini:error', error instanceof Error ? error.message : String(error))
+    }
+  })
+
+  geminiService.initialize().catch(err => {
+    console.error('Failed to initialize Gemini Service on startup:', err)
   })
 
   createWindow()

@@ -1,34 +1,48 @@
-# sxentrie
+# Sxentrie Product Manifesto
 
-An Electron application with React and TypeScript
+## 1. Comprehensive Application Overview
 
-## Recommended IDE Setup
+### The Vision for Sxentrie
+A professional, local-first environment is established by Sxentrie to redefine the interaction between human intelligence and generative AI models. A paradigm shift is introduced where data sovereignty and local execution are prioritized, ensuring that sensitive professional workflows are conducted within a private and secure desktop context. The Sxentrie mission is fulfilled by the integration of state-of-the-art AI capabilities directly into the user's local operating environment, thereby eliminating the friction between cloud-based intelligence and local data.
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+### Architectural Foundations
+The application is constructed upon a robust Electron architecture, which facilitates a seamless side-panel experience on the desktop. Local vector storage is managed by LanceDB, ensuring that high-performance search and retrieval operations are executed with minimal latency. Multimodal communication is supported through a sophisticated React-based interface, while the main process orchestrates secure IPC communication and local tool execution. The stability of the system is maintained by a modular design where features such as authentication, chat management, and role-based customization are partitioned into dedicated service layers.
 
-## Project Setup
+## 2. The Core Problem Domain
 
-### Install
+### Addressing the Privacy-Utility Gap
+A critical gap between AI utility and data privacy is addressed by this system. While cloud-based AI services offer significant capabilities, the risk of data leakage or unauthorized training on proprietary information is mitigated by Sxentrie's local-first approach. All conversational history, metadata, and generated insights are retained within the user's local filesystem, as specified by the system's strict data localization policies.
 
-```bash
-$ pnpm install
-```
+### Solving Contextual Fragmentation in AI Workflows
+The problem of contextual fragmentation is solved through the implementation of a unified context library. Users are no longer burdened with the manual extraction and re-insertion of web content or local files into AI prompts. Instead, relevant information is pinned, indexed, and retrieved by the system automatically, allowing for grounded AI responses that are deeply integrated with the user's active projects and research materials.
 
-### Development
+### Mitigating the Risks of Unstructured AI Interactions
+The risks associated with unpredictable or uncoordinated AI actions are neutralized through the "Plan and Execute" workflow. Complex objectives are not executed blindly; instead, a hierarchical task structure is developed and visualized for user review. This ensures that every command run or file modified by the agent is explicitly authorized and documented within a transparent operational framework.
 
-```bash
-$ pnpm dev
-```
+## 3. Exhaustive User Stories
 
-### Build
+### I. Local Session and Privacy Management
+A private conversational history is maintained by the system where every chat session is automatically saved to the local database. New sessions are initialized with specific model configurations, ensuring that the appropriate level of intelligence is applied to each unique task. Past interactions are retrieved and searched using substring matching and temporal sorting, allowing for the rapid recovery of previous insights without reliance on external cloud storage.
 
-```bash
-# For windows
-$ pnpm build:win
+### II. Enhanced Context and Multi-Source Grounding
+Grounding for AI responses is provided by pinning specific web sources and local documents to a session. A personal context library is managed by the user where frequently referenced pages are saved and indexed for future retrieval. When a query is processed, the most relevant contexts are injected by the system into the AI prompt, ensuring that the generated content is accurate and contextually relevant to the specific domain of interest.
 
-# For macOS
-$ pnpm build:mac
+### III. Professional Persona Customization (RoleStudio)
+The behavior and tone of the AI agent are precisely controlled through the RoleStudio feature. Specialized personas, such as the Coder, Business Analyst, or Academic Tutor, are toggled by the user to apply predefined system instructions that govern the model's response patterns. Furthermore, custom personas are drafted and saved as presets, allowing for a personalized AI experience that is tailored to the unique professional needs of the individual.
 
-# For Linux
-$ pnpm build:linux
-```
+### IV. Autonomous Tool and File System Integration
+Direct interaction with the local operating system is facilitated through a comprehensive suite of agentic tools. Local files are read, written, and searched by the agent using specialized filesystem handlers. Shell commands are executed within a controlled environment, enabling the agent to perform actions such as script execution, package management, or version control operations without requiring the user to leave the side-panel interface.
+
+### V. Strategic Planning and Complex Task Execution
+For multi-phase operations, a strategic roadmap is generated by the system in Planning Mode. Complex goals are decomposed into discrete, manageable tasks where dependencies are mapped and statuses are tracked. Progress is visualized through a task graph, ensuring that the current state of a complex operation is always transparent to the user and that any blocked or pending actions are clearly identified.
+
+## 4. System Capabilities and Business Rules
+
+### Tool Invocation and Execution Logic
+The invocation of tools is governed by a strict registry where every capability—from direct shell execution to file manipulation—is defined and validated. Function calls are generated by the AI model and subsequently executed by the main process, with the results being returned to the chat thread for further analysis. This bi-directional communication ensures that the AI remains aware of the outcome of its actions and can act recursively based on the tool output.
+
+### Planning Mode Restrictions and Safety Thresholds
+Safety and predictability are enforced by the system through the restriction of mutator tools while in Planning Mode. During the planning phase, actions that change the state of the local environment, such as writing files or running shell commands, are prohibited. Execution is only permitted once the plan has been finalized and approved, at which point the system transitions back to its default operational mode.
+
+### Data Retention and Local Vector Indexing Policies
+Long-term data retention is managed by the local instance of LanceDB, where sessions, messages, and task metadata are indexed for efficient retrieval. Image attachments are stored within a dedicated directory on the local filesystem, with metadata pointers maintained in the database. A strict cleanup protocol is provided where all local data can be cleared by the user, ensuring that no traces of conversational history remain on the device if requested.

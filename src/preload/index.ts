@@ -14,6 +14,22 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('secureApi', {
       fetchVectorTables: (storageUri: string) => {
         return ipcRenderer.invoke('database:connect', storageUri)
+      },
+      geminiChat: (messages: any[]) => ipcRenderer.send('gemini:chat', messages),
+      onGeminiChunk: (callback: (chunk: string) => void) => {
+        const listener = (_event, chunk: string) => callback(chunk)
+        ipcRenderer.on('gemini:chunk', listener)
+        return () => ipcRenderer.removeListener('gemini:chunk', listener)
+      },
+      onGeminiEnd: (callback: () => void) => {
+        const listener = () => callback()
+        ipcRenderer.on('gemini:end', listener)
+        return () => ipcRenderer.removeListener('gemini:end', listener)
+      },
+      onGeminiError: (callback: (error: string) => void) => {
+        const listener = (_event, error: string) => callback(error)
+        ipcRenderer.on('gemini:error', listener)
+        return () => ipcRenderer.removeListener('gemini:error', listener)
       }
     })
   } catch (error) {
@@ -28,6 +44,22 @@ if (process.contextIsolated) {
   window.secureApi = {
     fetchVectorTables: (storageUri: string) => {
       return ipcRenderer.invoke('database:connect', storageUri)
+    },
+    geminiChat: (prompt: string) => ipcRenderer.send('gemini:chat', prompt),
+    onGeminiChunk: (callback: (chunk: string) => void) => {
+      const listener = (_event, chunk: string) => callback(chunk)
+      ipcRenderer.on('gemini:chunk', listener)
+      return () => ipcRenderer.removeListener('gemini:chunk', listener)
+    },
+    onGeminiEnd: (callback: () => void) => {
+      const listener = () => callback()
+      ipcRenderer.on('gemini:end', listener)
+      return () => ipcRenderer.removeListener('gemini:end', listener)
+    },
+    onGeminiError: (callback: (error: string) => void) => {
+      const listener = (_event, error: string) => callback(error)
+      ipcRenderer.on('gemini:error', listener)
+      return () => ipcRenderer.removeListener('gemini:error', listener)
     }
   }
 }

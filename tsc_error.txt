@@ -1,0 +1,6 @@
+npm warn Unknown project config "shamefully-hoist". This will stop working in the next major version of npm.
+src/renderer/src/components/Chat/ChatContainer.tsx(21,43): error TS2339: Property 'onGeminiChunk' does not exist on type '{ fetchVectorTables: (storageUri: string) => Promise<string[]>; }'.
+src/renderer/src/components/Chat/ChatContainer.tsx(38,41): error TS2339: Property 'onGeminiEnd' does not exist on type '{ fetchVectorTables: (storageUri: string) => Promise<string[]>; }'.
+src/renderer/src/components/Chat/ChatContainer.tsx(42,43): error TS2339: Property 'onGeminiError' does not exist on type '{ fetchVectorTables: (storageUri: string) => Promise<string[]>; }'.
+src/renderer/src/components/Chat/ChatContainer.tsx(74,22): error TS2339: Property 'geminiChat' does not exist on type '{ fetchVectorTables: (storageUri: string) => Promise<string[]>; }'.
+src/renderer/src/components/Chat/ChatInput.tsx(3,10): error TS6133: 'Send' is declared but its value is never read.

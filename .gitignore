@@ -28,6 +28,7 @@ pids
 
 # Directory for instrumentation docs
 coverage/
+ref-Only/
 *.lcov
 
 # Environment variables
