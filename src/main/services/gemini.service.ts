@@ -19,6 +19,7 @@ export class GeminiService {
   private userTier: string | null = null
   private sessionId: string = crypto.randomUUID()
   private installationId?: string
+  private lastConfigRefresh: number = 0
 
   constructor() {
     this.client = new OAuth2Client(OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET)
@@ -111,7 +112,13 @@ export class GeminiService {
   }
 
   async getProjectId() {
-    if (this.cachedProjectId) return this.cachedProjectId
+    const now = Date.now()
+    const CONFIG_TTL_MS = 30000 // 30 second threshold matching gemini-cli
+
+    // Return cached project unless TTL expired
+    if (this.cachedProjectId && now - this.lastConfigRefresh < CONFIG_TTL_MS) {
+      return this.cachedProjectId
+    }
 
     console.log('[GeminiService] Loading Cloud Code Assist configuration...')
     const res = await this.client.request<{
@@ -136,6 +143,7 @@ export class GeminiService {
     let projectId = res.data.cloudaicompanionProject
     const currentTier = res.data.currentTier
     this.userTier = res.data.paidTier?.id || res.data.currentTier?.id || 'free-tier'
+    this.lastConfigRefresh = Date.now()
 
     // If no project assigned or hasn't onboarded previously, we must onboard
     if (!projectId || (currentTier && !currentTier.hasOnboardedPreviously)) {
@@ -153,7 +161,31 @@ export class GeminiService {
       }
 
       projectId = lro.response?.cloudaicompanionProject?.id || projectId
-      console.log('[GeminiService] Onboarding complete.')
+      console.log('[GeminiService] Onboarding complete. Refreshing final configuration...')
+
+      // Refresh final state once to stabilize without recursion
+      const refreshRes = await this.client.request<{
+        cloudaicompanionProject?: string
+        currentTier?: { id?: string; hasOnboardedPreviously?: boolean }
+        paidTier?: { id?: string }
+      }>({
+        url: 'https://cloudcode-pa.googleapis.com/v1internal:loadCodeAssist',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          metadata: {
+            ideType: 'IDE_UNSPECIFIED',
+            platform: 'PLATFORM_UNSPECIFIED',
+            pluginType: 'GEMINI'
+          }
+        }),
+        responseType: 'json'
+      })
+
+      this.userTier = refreshRes.data.paidTier?.id || refreshRes.data.currentTier?.id || 'free-tier'
+      this.cachedProjectId = refreshRes.data.cloudaicompanionProject || projectId
+      this.lastConfigRefresh = Date.now()
+      return this.cachedProjectId
     }
 
     if (!projectId) {
@@ -206,12 +238,13 @@ export class GeminiService {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'User-Agent': userAgent,
-      'x-goog-api-client': 'gemini-cli', // Matching official CLI for Pro quota access
-      // NO x-goog-user-project for managed projects!
+      // NO x-goog-api-client or x-goog-user-project for managed/assist projects!
       'x-gemini-api-privileged-user-id': this.installationId || ''
     }
 
     const userPromptId = crypto.randomUUID()
+    const trajectoryId = crypto.randomUUID() // Fresh session ID for every prompt to bypass 429 limits
+
     const requestBody = {
       model: 'gemini-3-flash-preview',
       project: projectId,
@@ -220,7 +253,7 @@ export class GeminiService {
           ...m,
           role: m.role === 'assistant' ? 'model' : m.role
         })),
-        session_id: this.sessionId, // Stable Trajectory ID for Context Caching
+        session_id: trajectoryId, // Fresh Trajectory ID for every request
         generationConfig: {
           temperature: 1,
           topP: 0.95,
